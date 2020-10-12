@@ -1,0 +1,56 @@
+version: '3.7'
+
+services:
+
+  web:
+    build: .
+    command: python /code/manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    depends_on:
+            - db
+    expose:
+      - 8000
+
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - 1337:80
+    volumes:
+      - ./config/nginx/conf.d:/etc/nginx/conf.d
+    depends_on:  # <-- wait for djangoapp to be "ready" before starting this service
+      - web
+    restart: always
+    #    networks:
+    #  - nginx_network
+
+
+  db:
+    image: postgres:12.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=hello_django_dev
+        #    networks:
+        #- db_network
+        #    ports:
+        #- "5432:5432"
+
+volumes:
+    postgres_data:
+
+
+
+            #networks:
+            #  nginx_network:
+            #    driver: bridge
+            #  db_network:
+            #    driver: bridge          
+
+
+
+
+
